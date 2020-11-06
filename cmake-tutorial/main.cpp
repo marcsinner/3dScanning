@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include "util.h"
 #include "algo.h"
 
@@ -21,11 +22,15 @@ int main(int argc, char const *argv[])
 	std::vector<float> student_grades{4.0f, 1.3f, 2.3f, 3.3f, 1.0f, 1.7f, 2.0f, 2.0f, 2.7f};
 	Algos::sort(student_grades);
 	std::cout << "Sorted grade list: " << std::endl;
-
+    std::ofstream txtfile;
+    txtfile.open("Output.txt");
 	for(const auto& grade : student_grades)
 	{
 		std::cout << "- " << grade << std::endl;
+		txtfile << "- " << grade << std::endl;
 	}
+
+    txtfile.close();
 
     return 0;
 }
