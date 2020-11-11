@@ -1,6 +1,7 @@
 # user
 # (daniel)
 build/
+libs/
 
 # Prerequisites
 *.d
