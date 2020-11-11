@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <array>
+#include <math.h>
 
 #include "Eigen.h"
 
@@ -32,7 +33,7 @@ bool WriteMesh(Vertex* vertices, unsigned int width, unsigned int height, const 
 	// - only write triangles with valid vertices and an edge length smaller then edgeThreshold
 
 	// TODO: Get number of vertices
-	unsigned int nVertices = 0;
+	unsigned int nVertices = width*height;
 
 
 	// TODO: Determine number of valid faces
@@ -48,7 +49,25 @@ bool WriteMesh(Vertex* vertices, unsigned int width, unsigned int height, const 
 	outFile << nVertices << " " << nFaces << " 0" << std::endl;
 
 	// TODO: save vertices
-
+	for(int i = 0; i < nVertices; i++)
+	{
+		if (std::isinf(std::abs(vertices[i].position[0])) || std::isnan(std::abs(vertices[i].position[0])) || 
+			std::isinf(std::abs(vertices[i].position[1])) || std::isnan(std::abs(vertices[i].position[1])) ||
+			std::isinf(std::abs(vertices[i].position[2])) || std::isnan(std::abs(vertices[i].position[2])) ||
+			std::isinf(std::abs(vertices[i].position[3])) || std::isnan(std::abs(vertices[i].position[3]))
+		)
+		{
+			outFile << 0 << " " << 0 << " " << 0 << " ";
+			outFile << (int)vertices[i].color[0] << " " << (int)vertices[i].color[1] << " " << (int)vertices[i].color[2] << " " << (int)vertices[i].color[3] << std::endl;
+		
+		}
+		else
+		{
+			outFile << vertices[i].position[0] << " " << vertices[i].position[1] << " " << vertices[i].position[2]  << " ";
+			outFile << (int)vertices[i].color[0] << " " << (int)vertices[i].color[1] << " " << (int)vertices[i].color[2] << " " << (int)vertices[i].color[3] << std::endl;
+		}
+		
+	}
 
 	// TODO: save valid faces
 
@@ -62,7 +81,7 @@ bool WriteMesh(Vertex* vertices, unsigned int width, unsigned int height, const 
 int main()
 {
 	// Make sure this path points to the data folder
-	std::string filenameIn = "../data/rgbd_dataset_freiburg1_xyz/";
+	std::string filenameIn = "../../data/rgbd_dataset_freiburg1_xyz/";
 	std::string filenameBaseOut = "mesh_";
 
 	// load video
@@ -105,7 +124,43 @@ int main()
 		// vertices[idx].color = Vector4uc(0,0,0,0);
 		// otherwise apply back-projection and transform the vertex to world space, use the corresponding color from the colormap
 		Vertex* vertices = new Vertex[sensor.GetDepthImageWidth() * sensor.GetDepthImageHeight()];
+		for(int y = 0; y < sensor.GetDepthImageHeight(); y++)
+		{
+			for(int x = 0; x < sensor.GetDepthImageWidth(); x++)
+			{
+				int idx = y * x;
+				float depth = depthMap[idx];
+				Vector4f position;
+				Vector4uc color;
 
+				// check for negative infinity
+				if (depth == (-1.f/0.f))
+				{
+					position[0] = depth;
+					position[1] = depth;
+					position[2] = depth;
+					position[3] = depth;
+
+					color[0] = 0;
+					color[1] = 0;
+					color[2] = 0;
+					color[3] = 0;
+				}
+				else
+				{
+					color = Vector4uc(colorMap[idx*4+0], colorMap[idx*4+1], colorMap[idx*4+2], colorMap[idx*4+3]);
+					Vector3f pos_cam_space = Vector3f(depth * x, depth * y, depth);
+					Vector3f result = sensor.GetDepthIntrinsics().inverse() * pos_cam_space;
+					position = depthExtrinsicsInv * Vector4f(result[0], result[1], result[2], 1.0f);
+					position[0] = position[0] / position[3];
+					position[1] = position[1] / position[3];
+					position[2] = position[2] / position[3];
+					position[3] = position[3] / position[3];
+				}
+				vertices[idx].color = color;
+				vertices[idx].position = position;
+			}
+		}
 
 		// write mesh file
 		std::stringstream ss;
