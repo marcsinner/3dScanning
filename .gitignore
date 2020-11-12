@@ -3,6 +3,7 @@
 build/
 libs/
 data/
+.vscode/
 
 # Prerequisites
 *.d

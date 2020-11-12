@@ -81,7 +81,7 @@ bool WriteMesh(Vertex* vertices, unsigned int width, unsigned int height, const 
 int main()
 {
 	// Make sure this path points to the data folder
-	std::string filenameIn = "../../data/rgbd_dataset_freiburg1_xyz/";
+	std::string filenameIn = "../data/rgbd_dataset_freiburg1_xyz/";
 	std::string filenameBaseOut = "mesh_";
 
 	// load video
@@ -152,7 +152,7 @@ int main()
 					float cam_x = ((x - cX) * depth) / fX;
 					float cam_y = ((y - cY) * depth) / fY;
 					float cam_z = depth;
-					position = trajectoryInv * depthExtrinsicsInv * Vector4f(cam_x, cam_y, cam_z, 1.0f);
+					position = depthExtrinsicsInv * trajectoryInv * Vector4f(cam_x, cam_y, cam_z, 1.0f);
 				}
 				vertices[idx].color = color;
 				vertices[idx].position = position;
