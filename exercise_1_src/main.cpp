@@ -128,13 +128,13 @@ int main()
 		{
 			for(int x = 0; x < sensor.GetDepthImageWidth(); x++)
 			{
-				int idx = y * x;
+				int idx = y * sensor.GetDepthImageWidth() + x;
 				float depth = depthMap[idx];
 				Vector4f position;
 				Vector4uc color;
 
 				// check for negative infinity
-				if (depth == (-1.f/0.f))
+				if (std::isinf(depth))
 				{
 					position[0] = depth;
 					position[1] = depth;
@@ -149,13 +149,10 @@ int main()
 				else
 				{
 					color = Vector4uc(colorMap[idx*4+0], colorMap[idx*4+1], colorMap[idx*4+2], colorMap[idx*4+3]);
-					Vector3f pos_cam_space = Vector3f(depth * x, depth * y, depth);
-					Vector3f result = sensor.GetDepthIntrinsics().inverse() * pos_cam_space;
-					position = depthExtrinsicsInv * Vector4f(result[0], result[1], result[2], 1.0f);
-					position[0] = position[0] / position[3];
-					position[1] = position[1] / position[3];
-					position[2] = position[2] / position[3];
-					position[3] = position[3] / position[3];
+					float cam_x = ((x - cX) * depth) / fX;
+					float cam_y = ((y - cY) * depth) / fY;
+					float cam_z = depth;
+					position = trajectoryInv * depthExtrinsicsInv * Vector4f(cam_x, cam_y, cam_z, 1.0f);
 				}
 				vertices[idx].color = color;
 				vertices[idx].position = position;
