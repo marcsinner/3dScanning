@@ -59,6 +59,8 @@ bool WriteMesh(Vertex* vertices, unsigned int width, unsigned int height, const 
 		{
 			vertices[i].position[0] = vertices[i].position[1] = vertices[i].position[2] = 0;
 		}
+
+		// don't need to dehomogenizate because w coordinate is always one
 		outFile << vertices[i].position[0] << " " << vertices[i].position[1] << " " << vertices[i].position[2]  << " ";
 		outFile << (int)vertices[i].color[0] << " " << (int)vertices[i].color[1] << " " << (int)vertices[i].color[2] << " " << (int)vertices[i].color[3] << std::endl;
 		
@@ -66,9 +68,9 @@ bool WriteMesh(Vertex* vertices, unsigned int width, unsigned int height, const 
 	}
 
 	// TODO: save valid faces
-	for (int y = 0; y < height; y++)
+	for (int y = 0; y < height - 1; y++)
 	{
-		for(int x = 0; x < width; x++)
+		for(int x = 0; x < width - 1; x++)
 		{
 
 			/*
@@ -83,11 +85,17 @@ bool WriteMesh(Vertex* vertices, unsigned int width, unsigned int height, const 
 			 *    e3
 			 */
 
-			int idx = y * width + x;
-			Vertex v_0 = vertices[idx];
-			Vertex v_1 = vertices[idx + 1];
-			Vertex v_2 = vertices[(y+1) * width + x];
-			Vertex v_3 = vertices[(y+1) * width + x + 1];
+			// idx_x_y with positive x-axis going to the right
+			// and positive y-axis going down
+			int idx_0_0 = y * width + x;
+			int idx_1_0 = idx_0_0 + 1;
+			int idx_0_1 = (y+1) * width + x;
+			int idx_1_1 = idx_0_1 + 1;
+
+			Vertex v_0 = vertices[idx_0_0];
+			Vertex v_1 = vertices[idx_1_0];
+			Vertex v_2 = vertices[idx_0_1];
+			Vertex v_3 = vertices[idx_1_1];
 
 			Eigen::Vector4f e0 = v_1.position - v_0.position;
 			Eigen::Vector4f e1 = v_2.position - v_0.position;
@@ -99,8 +107,8 @@ bool WriteMesh(Vertex* vertices, unsigned int width, unsigned int height, const 
 			    e3.norm() < edgeThreshold && e4.norm() < edgeThreshold
 			)
 			{
-				outFile << "3 " << idx+1 << " " << idx << " " << (y+1) * width + x << std::endl;
-				outFile << "3 " << idx+1 << " " << (y+1) * width + x << " " << (y+1) * width + x + 1 << std::endl;
+				outFile << "3 " << idx_1_0 << " " << idx_0_0 << " " << idx_0_1 << std::endl;
+				outFile << "3 " << idx_1_0 << " " << idx_0_1 << " " << idx_1_1 << std::endl;
 			}
 		}
 	}
@@ -185,7 +193,7 @@ int main()
 					float cam_x = ((x - cX) * depth) / fX;
 					float cam_y = ((y - cY) * depth) / fY;
 					float cam_z = depth;
-					position = trajectoryInv * depthExtrinsicsInv * trajectory * Vector4f(cam_x, cam_y, cam_z, 1.0f);
+					position = trajectoryInv * depthExtrinsicsInv * Vector4f(cam_x, cam_y, cam_z, 1.0f);
 				}
 				vertices[idx].color = color;
 				vertices[idx].position = position;
