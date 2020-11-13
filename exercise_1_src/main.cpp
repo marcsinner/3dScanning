@@ -37,7 +37,7 @@ bool WriteMesh(Vertex* vertices, unsigned int width, unsigned int height, const 
 
 
 	// TODO: Determine number of valid faces
-	unsigned nFaces = 0;
+	unsigned nFaces = nVertices - 2;
 
 
 	// Write off file
@@ -57,20 +57,53 @@ bool WriteMesh(Vertex* vertices, unsigned int width, unsigned int height, const 
 			std::isinf(std::abs(vertices[i].position[3])) || std::isnan(std::abs(vertices[i].position[3]))
 		)
 		{
-			outFile << 0 << " " << 0 << " " << 0 << " ";
-			outFile << (int)vertices[i].color[0] << " " << (int)vertices[i].color[1] << " " << (int)vertices[i].color[2] << " " << (int)vertices[i].color[3] << std::endl;
+			vertices[i].position[0] = vertices[i].position[1] = vertices[i].position[2] = 0;
+		}
+		outFile << vertices[i].position[0] << " " << vertices[i].position[1] << " " << vertices[i].position[2]  << " ";
+		outFile << (int)vertices[i].color[0] << " " << (int)vertices[i].color[1] << " " << (int)vertices[i].color[2] << " " << (int)vertices[i].color[3] << std::endl;
 		
-		}
-		else
-		{
-			outFile << vertices[i].position[0] << " " << vertices[i].position[1] << " " << vertices[i].position[2]  << " ";
-			outFile << (int)vertices[i].color[0] << " " << (int)vertices[i].color[1] << " " << (int)vertices[i].color[2] << " " << (int)vertices[i].color[3] << std::endl;
-		}
 		
 	}
 
 	// TODO: save valid faces
+	for (int y = 0; y < height; y++)
+	{
+		for(int x = 0; x < width; x++)
+		{
 
+			/*
+			 *    e0
+			 * 	v_0   v_1
+			 * 	x----x
+			 *  | e2/|
+			 *e1|  / |e4
+			 *  | /	 |
+			 *  x----x 
+			 *  v_2  v_3
+			 *    e3
+			 */
+
+			int idx = y * width + x;
+			Vertex v_0 = vertices[idx];
+			Vertex v_1 = vertices[idx + 1];
+			Vertex v_2 = vertices[(y+1) * width + x];
+			Vertex v_3 = vertices[(y+1) * width + x + 1];
+
+			Eigen::Vector4f e0 = v_1.position - v_0.position;
+			Eigen::Vector4f e1 = v_2.position - v_0.position;
+			Eigen::Vector4f e2 = v_1.position - v_2.position;
+			Eigen::Vector4f e3 = v_3.position - v_2.position;
+			Eigen::Vector4f e4 = v_1.position - v_3.position;
+
+			if (e0.norm() < edgeThreshold && e1.norm() < edgeThreshold && e2.norm() < edgeThreshold &&
+			    e3.norm() < edgeThreshold && e4.norm() < edgeThreshold
+			)
+			{
+				outFile << "3 " << idx+1 << " " << idx << " " << (y+1) * width + x << std::endl;
+				outFile << "3 " << idx+1 << " " << (y+1) * width + x << " " << (y+1) * width + x + 1 << std::endl;
+			}
+		}
+	}
 
 	// close file
 	outFile.close();
@@ -152,7 +185,7 @@ int main()
 					float cam_x = ((x - cX) * depth) / fX;
 					float cam_y = ((y - cY) * depth) / fY;
 					float cam_z = depth;
-					position = depthExtrinsicsInv * trajectoryInv * Vector4f(cam_x, cam_y, cam_z, 1.0f);
+					position = trajectoryInv * depthExtrinsicsInv * trajectory * Vector4f(cam_x, cam_y, cam_z, 1.0f);
 				}
 				vertices[idx].color = color;
 				vertices[idx].position = position;
