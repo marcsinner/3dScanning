@@ -43,7 +43,8 @@ public:
 	double Eval(const Eigen::Vector3d& _x)
 	{
 		// TODO: implement the implicit torus formula using the  variables m_center, m_radius (radius of the ring) and the radius m_a (small radius)
-		return 0.0;
+		Eigen::Vector3d p = _x - m_center;
+		return std::pow((p.x()*p.x() + p.y()*p.y() + p.z()*p.z() + m_radius*m_radius - m_a*m_a), 2) - 4*m_radius*m_radius*(p.x()*p.x() + p.y()*p.y());
 	}
 
 private:
