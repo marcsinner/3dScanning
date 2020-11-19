@@ -2,7 +2,7 @@
 # (daniel)
 build/
 libs/
-data/
+data/rgbd_dataset_freiburg1_xyz/
 .vscode/
 
 # Prerequisites
