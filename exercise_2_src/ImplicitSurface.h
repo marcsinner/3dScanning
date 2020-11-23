@@ -154,6 +154,20 @@ public:
 		double result = 0.0;
 
 
+		for (unsigned int i = 0; i< m_numCenters; i++)
+		{
+			Eigen::Vector3d temp = m_funcSamp.m_pos[i] - _x;
+			result = result + RBF::m_coefficents[i] * EvalBasis(temp.norm());
+		}
+
+		result = result + RBF::m_coefficents[m_numCenters] * _x.x(); 
+		result = result + RBF::m_coefficents[m_numCenters+1] * _x.y(); 
+		result = result + RBF::m_coefficents[m_numCenters+2] * _x.z(); 
+
+		result = result + RBF::m_coefficents[m_numCenters+3];
+
+		
+
 		return result;
 	}
 
@@ -179,6 +193,47 @@ private:
 		// you can access matrix elements using for example A(i,j) for the i-th row and j-th column
 		// similar you access the elements of the vector b, e.g. b(i) for the i-th element
 
+
+		for (unsigned int i = 0; i < m_numCenters; i++)
+		{
+			for (unsigned int j = 0; j < m_numCenters; j++)
+			{
+				A(i,j) = phi(i,j);
+			}
+		}
+
+		for (unsigned int i = m_numCenters; i < m_numCenters*2; i++)
+		{
+			for (unsigned int j = 0; j < m_numCenters ; j++)
+			{
+				A(i,j) = phi(i,j);
+			}
+		}
+
+		
+		for (unsigned int i = 0; i < m_numCenters; i++)
+		{
+			A(i,m_numCenters) = m_funcSamp.m_pos[i].x();
+			A(i,m_numCenters+1) = m_funcSamp.m_pos[i].y();
+			A(i,m_numCenters+2) = m_funcSamp.m_pos[i].z();
+			A(i,m_numCenters+3) = 1;
+
+		}
+
+		for (unsigned int i = m_numCenters; i < m_numCenters*2; i++)
+		{
+			A(i,m_numCenters) = m_funcSamp.m_pos[i].x();
+			A(i,m_numCenters+1) = m_funcSamp.m_pos[i].y();
+			A(i,m_numCenters+2) = m_funcSamp.m_pos[i].z();
+			A(i,m_numCenters+3) = 1;	
+
+		}
+		
+		for (unsigned int i = 0; i < 2* m_numCenters; i++)
+		{
+			b(i) = m_funcSamp.m_val[i];
+		}
+		
 
 
 
