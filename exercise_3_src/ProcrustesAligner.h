@@ -33,6 +33,15 @@ private:
 		// TODO: Compute the mean of input points.
 		Vector3f mean = Vector3f::Zero();
 
+		for (unsigned int i = 0; i<mean.size(); i++){
+			mean(0) = mean(0) + points[i].x();
+			mean(1) = mean(1) + points[i].y();
+			mean(2) = mean(2) + points[i].z();
+		}
+		mean(0) = mean(0)/points.size();
+		mean(1) = mean(1)/points.size();
+		mean(2) = mean(2)/points.size();
+
 		return mean;
 	}
 
@@ -40,7 +49,30 @@ private:
 		// TODO: Estimate the rotation from source to target points, following the Procrustes algorithm.
 		// To compute the singular value decomposition you can use JacobiSVD() from Eigen.
 		// Important: The covariance matrices should contain mean-centered source/target points.
+		Vector3f translation = computeTranslation(sourceMean, targetMean);
+
+		std::vector<Vector3f> targetPointsCentered;
+		std::vector<Vector3f> sourcePointsCentered;
+
+
+		for (unsigned int i = 0; i<targetPoints.size(); i++){ //sizes are the same targetPoints.size == sourcePoints.size
+			//targetCovariance(0) = targetPoints[i] + sourceMean; 
+			targetPointsCentered.push_back((targetPoints[i] + sourceMean));
+			sourcePointsCentered.push_back((sourcePoints[i] + sourceMean));
+		}
+
+
+		//TODO: fill matrix (from target/sourcePointsCentered)
+		Eigen::Matrix3f targetCovariance;
+		Eigen::Matrix3f sourceCovariance;
+
+
+
 		Matrix3f rotation = Matrix3f::Identity();
+		JacobiSVD<Matrix3f> jacobi(targetCovariance.transpose() * sourceCovariance);
+		rotation = jacobi.matrixU() * jacobi.matrixV().transpose(); 
+
+		
 
 		return rotation;
 	}
@@ -48,7 +80,7 @@ private:
 	Vector3f computeTranslation(const Vector3f& sourceMean, const Vector3f& targetMean) {
 		// TODO: Compute the translation vector from source to target points.
 		Vector3f translation = Vector3f::Zero();
-
+		translation = targetMean - sourceMean;
 
 		return translation;
 	}
