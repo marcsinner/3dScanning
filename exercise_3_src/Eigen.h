@@ -26,12 +26,12 @@
 #endif
 
 
-#include <Eigen/Dense>
-#include <Eigen/StdVector>
-#include <Eigen/Eigenvalues>
-#include <unsupported/Eigen/NonLinearOptimization>
-#include <Eigen/Sparse>
-#include <Eigen/SparseCholesky>
+#include </Eigen/Dense>
+#include </Eigen/StdVector>
+#include </Eigen/Eigenvalues>
+//#include <unsupported/Eigen/NonLinearOptimization>
+#include </Eigen/Sparse>
+#include </Eigen/SparseCholesky>
 
 typedef Eigen::Matrix<unsigned char, 4, 1> Vector4uc;
 
