@@ -1,10 +1,12 @@
-# user
+#user
 # (daniel)
 build/
 libs/
 data/rgbd_dataset_freiburg1_xyz/
 data/bunny/
 .vscode/
+lib/
+data/
 
 # Prerequisites
 *.d
