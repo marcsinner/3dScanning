@@ -46,7 +46,7 @@ private:
 		// TODO: Compute the mean of input points.
 		Vector3f mean = Vector3f::Zero();
 
-		for (unsigned int i = 0; i<mean.size(); i++){
+		for (unsigned int i = 0; i<points.size(); i++){ //correction points.size instead of mean.size
 			mean = mean+points[i];
 		}
 		mean(0) = mean(0)/points.size();
@@ -68,8 +68,8 @@ private:
 
 		for (unsigned int i = 0; i<targetPoints.size(); i++){ //sizes are the same targetPoints.size == sourcePoints.size
 			//targetCovariance(0) = targetPoints[i] + sourceMean; 
-			targetPointsCentered.row(i) = ((targetPoints[i] + targetMean));
-			sourcePointsCentered.row(i)=((sourcePoints[i] + sourceMean));
+			targetPointsCentered.row(i) = ((targetPoints[i] - targetMean));
+			sourcePointsCentered.row(i)=((sourcePoints[i] - sourceMean));
 		}
 		
 
