@@ -61,8 +61,9 @@ private:
 		// To compute the singular value decomposition you can use JacobiSVD() from Eigen.
 		// Important: The covariance matrices should contain mean-centered source/target points.
 		//Dynamic instead of "4" did not work - what did i do wrong? MatrixXf also didnt work
-		Eigen::Matrix<float,4,3> targetPointsCentered;
-		Eigen::Matrix<float,4,3> sourcePointsCentered;
+		auto nPoints = sourcePoints.size();
+		Eigen::MatrixXf targetPointsCentered(nPoints, 3);
+		Eigen::MatrixXf sourcePointsCentered(nPoints, 3);
 
 
 
