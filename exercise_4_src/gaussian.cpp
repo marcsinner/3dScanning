@@ -17,7 +17,7 @@ struct GaussianCostFunction
 	{
 		// TODO: Implement the cost function
 		//residual[0] = T(0.0);
-		residual[0] = point.y - 1/(sqrt(2*M_PI*pow(sigma,2))) * exp(-pow(point.x-mu,2)/(2*pow(sigma,2)));
+		residual[0] = point.y - 1/(sqrt(2*M_PI*pow((double)sigma,2))) * exp(-pow(point.x-(double)mu,2)/(2*pow((double)sigma,2)));
 
 		return true;
 	}
