@@ -8,7 +8,7 @@
 // TODO: Implement the cost function
 struct SurfaceCostFunction
 {
-        GaussianCostFunction(const Point3D& point_)
+        SurfaceCostFunction(const Point3D& point_)
                 : point(point_)
         {
         }
@@ -18,7 +18,7 @@ struct SurfaceCostFunction
         {
                 // TODO: Implement the cost function
                 //residual[0] = T(0.0);
-		residual[0] = (c * point.z) - pow(point.x,2)/a[0] - pow(point.y,2)/b[0];
+		residual[0] = (c[0] * point.z) - pow(point.x,2)/a[0] - pow(point.y,2)/b[0];
                 return true;
         }
 
@@ -50,8 +50,8 @@ int main(int argc, char** argv)
         for (auto& point : points)
         {
                 problem.AddResidualBlock(
-                        new ceres::AutoDiffCostFunction<GaussianCostFunction, 1, 1,1, 1>(
-                                new GaussianCostFunction(point)
+                        new ceres::AutoDiffCostFunction<SurfaceCostFunction, 1, 1,1, 1>(
+                                new SurfaceCostFunction(point)
                         ),
                         nullptr, &a, &b, &c
                 );
