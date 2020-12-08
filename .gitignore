@@ -6,7 +6,7 @@ data/rgbd_dataset_freiburg1_xyz/
 data/bunny/
 .vscode/
 lib/
-data/
+#data/
 
 # Prerequisites
 *.d
